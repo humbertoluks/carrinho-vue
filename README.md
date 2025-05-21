@@ -33,7 +33,7 @@ Este projeto foi criado com foco em aprendizado! Ele ajuda a praticar:
 
 ## 📁 Estrutura
 
-```
+```css
 carrinho-vue/
 ├── assets/
 │ └── preview.png
