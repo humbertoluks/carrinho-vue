@@ -5,66 +5,143 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mini Carrinho Vue</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-200">
-  <main class="max-w-2xl min-w-[320px] mx-auto flex justify-center mt-10 p-4">
-    <section class="w-full p-6 bg-white rounded shadow overflow-x-auto">
+  
+  <div id="app">
+    <main class="max-w-2xl min-w-[320px] bg-white rounded shadow mx-auto mt-10 p-4">
       <h1 class="text-xl sm:text-2xl font-semibold text-center mb-6">Carrinho de compra</h1>
+      <cart 
+        :products="products"
+        @remove="remove"></cart>
+    </main>
+  </div>
 
-      <!-- Produto A -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-t border-gray-300 py-4">
-        <!-- Lado esquerdo: imagem + info -->
-        <div class="flex items-center gap-4">
-          <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-sm text-gray-500">
-            72x72
-          </div>
-          <div>
-            <p class="font-medium">Produto A</p>
-            <p class="text-sm text-gray-500">#12345</p>
-          </div>
-        </div>
-
-        <!-- Lado direito: quantidade, preço, remover -->
-         <div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
-          <button class="border px-2 py-1 rounded text-sm sm:text-base">-</button>
-          <span class="w-8 text-center">1</span>
-          <button class="border px-2 py-1 rounded text-sm sm:text-base">+</button>
-          <span class="ml-4 font-semibold">R$10.50</span>
-          <button class="ml-4 text-red-600 font-bold text-xl">✕</button>
-        </div>
+  <template id="cart">
+    <section class="w-full p-6 overflow-x-auto">
+      <div v-if="products.length === 0" class="text-center text-gray-500 mb-4">
+        <span> Carrinho vazio</span>
       </div>
 
-      <!-- Produto B -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-t border-gray-300 py-4">
-        <!-- Lado esquerdo: imagem + info -->
-        <div class="flex items-center gap-4">
-          <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-sm text-gray-500">
-            72x72
-          </div>
-          <div>
-            <p class="font-medium">Produto B</p>
-            <p class="text-sm text-gray-500">#12345</p>
-          </div>
-        </div>
-
-        <!-- Lado direito: quantidade, preço, remover -->
-         <div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
-          <button class="border px-2 py-1 rounded text-sm sm:text-base">-</button>
-          <span class="w-8 text-center">1</span>
-          <button class="border px-2 py-1 rounded text-sm sm:text-base">+</button>
-          <span class="ml-4 font-semibold">R$10.50</span>
-          <button class="ml-4 text-red-600 font-bold text-xl">✕</button>
-        </div>
+      <div v-for="product in products" :key="product.id" class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-t border-gray-300 py-4">
+        <cart-product 
+          :product="product"
+          @remove="remove"></cart-product>
       </div>
       
       <!-- Rodapé com total e link de voltar -->
-      <footer class="flex1 justify-between items-center mt-6 pt-4 border-t border-gray-300">
-        <a href="#" class="text-blue-600 hover:underline">Continuar comprando</a>
-        <p class="text-lg font-semibold">Total: R$200.20</p>
-      </footer>
+      <cart-footer :products="products"></cart-footer>
     </section>
-  </main>
+  </template>
+
+  <template id="cart-product">
+    <!-- Lado esquerdo: imagem + info -->
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-sm text-gray-500">
+            72x72
+          </div>
+          <div>
+            <p class="font-medium">{{ product.name }}</p>
+            <p class="text-sm text-gray-500">#{{ product.id }}</p>
+          </div>
+        </div>
+
+        <!-- Lado direito: quantidade, preço, remover -->
+        <div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
+          <button @click="decrement()" class="border px-2 py-1 rounded text-sm sm:text-base" >-</button>
+          <span class="w-8 text-center">{{ product.quantity }}</span>
+          <button @click="increment()" class="border px-2 py-1 rounded text-sm sm:text-base">+</button>
+         
+         
+          <span class="ml-4 font-semibold">R${{ total.toFixed(2) }}</span>
+          <button class="ml-4 text-red-600 font-bold text-xl" @click="remove()">✕</button>
+        </div>
+  </template>
+
+  <template id="cart-footer">
+    <footer class="flex justify-between items-center mt-6 pt-4 border-t border-gray-300">
+      <a href="#" class="text-blue-600 hover:underline">Continuar comprando</a>
+      <p class="text-lg font-semibold">Total: R${{ total.toFixed(2) }}</p>
+    </footer>
+  </template>
+  
+  <script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
+  <script>
+    const app = Vue.createApp({
+      data() {
+        return {
+          products: [
+            { id: 1, name: 'Produto A', amount: 10.50, quantity: 1 },
+            { id: 2, name: 'Produto B', amount: 20.00, quantity: 1 }
+          ]
+        }
+      },
+      methods: {
+        remove(id) {
+          this.products = this.products.filter(product => product.id !== id);
+        }
+      }
+    });
+
+    app.component('cart', {
+      template: '#cart',
+      props:{
+        products: {
+          type: Array,
+          default: () => []
+        }
+      },
+      methods: {
+        remove (id) {
+          this.$emit('remove', id);
+        }
+      }
+    });
+
+    app.component('cart-product', {
+      props: ['product'],
+      template: '#cart-product',
+      computed:{
+        total() {
+          return this.product.amount * this.product.quantity;
+        }
+      },
+      methods: {
+        increment() {
+          this.product.quantity++;
+        },
+        decrement() {
+          if (this.product.quantity > 1) {
+            this.product.quantity--;
+          }
+        },
+        remove() {
+          this.$emit('remove', this.product.id);
+        }
+      }
+    });
+
+    app.component('cart-footer', {
+      template: '#cart-footer',
+      props:{
+        products: {
+          type: Array,
+          default: () => []
+        }
+      },
+      computed: {
+        total() {
+          return this.products.reduce((acc, product) => {
+            acc += (product.amount * product.quantity);
+            return acc;
+          }, 0);
+        }
+      }
+    });
+
+    app.mount('#app');
+  </script>
+
 </body>
 </html> 
